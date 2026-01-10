@@ -1,0 +1,141 @@
+* {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.page {
+  display: none;
+}
+
+#first {
+  display: block;
+}
+
+.page:target {
+  display: block;
+}
+
+header .top {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: clamp(80px, 18vw, 155px);
+  background: url(./img/top.jpg) no-repeat center center/cover;
+  border-radius: 0 0 clamp(15px, 3vw, 30px) clamp(15px, 3vw, 30px);
+  position: fixed;
+  top: -clamp(80px, 18vw, 155px);
+  left: 0;
+  z-index: 999;
+  transition: top 0.8s ease-in-out;
+}
+
+header .top ul {
+  display: flex;
+  height: 50%;
+  padding: 0;
+  margin: 0 auto;
+  width: 90%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  list-style-type: none;
+  flex-wrap: nowrap;
+}
+
+header .top ul::-webkit-scrollbar {
+  display: none;
+}
+
+header .top ul li {
+  flex: 0 0 auto;
+  height: 100%;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  border-radius: 20%;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+header .top ul li:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+header .top ul li a {
+  display: block;
+  color: #fff;
+  font-size: 20px;
+}
+
+header .top ul li a:hover {
+  color: #0acbf1;
+}
+
+header .top ul {
+  scroll-behavior: smooth;
+}
+
+.text {
+  width: 80%;
+  height: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url(./img/text.png) no-repeat center center/contain;
+}
+
+.text img {
+  max-width: 100%;
+  height: auto;
+}
+
+.test {
+  height: 1000px;
+}
+
+section {
+  width: 100%;
+  height: 100vh;
+  background-attachment: fixed;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  /* 让body和html与当前可视区一样大 */
+}
+
+.content {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: aliceblue;
+  line-height: clamp(20px, 3vw, 36px);
+  font-size: clamp(12px, 1.5vw, 20px);
+  padding: 10px;
+  letter-spacing: 1px;
+}
+
+.content p {
+  text-indent: 2em;
+}
+
+.content h1 {
+  text-align: center;
+  font-size: clamp(24px, 3vw, 48px);
+  letter-spacing: 2px;
+  line-height: clamp(48px, 6vw, 96px);
+  letter-spacing: 4px;
+}
