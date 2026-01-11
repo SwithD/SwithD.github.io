@@ -113,9 +113,9 @@ section {
   background-attachment: fixed;
   background-position: center center;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
   background-attachment: fixed;
-  /* 让body和html与当前可视区一样大 */
+  background-color: rgba(0, 0, 0);
 }
 
 .content {

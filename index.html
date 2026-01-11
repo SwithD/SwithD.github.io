@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>The world</title>
   <link rel="stylesheet" href="./item.css">
 </head>
@@ -212,9 +213,20 @@
   </div>
 </body>
 <script>
+  function isMobilePortrait() {
+    const isMobile = window.innerWidth <= 768;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    return isMobile && isPortrait;
+  }
+  if (isMobilePortrait()) {
+    alert('横屏以获得最佳体验');
+  }
   let lastPageId = 'first';
   const allPages = document.querySelectorAll('.page');
   const anchorLinks = document.querySelectorAll('header .top ul li a');
+  const navTop = document.querySelector('header .top');
+  const TRIGGER_DISTANCE = 50;
+  let isNavShow = false;
   function loadSectionBg(pageId) {
     const targetPage = document.getElementById(pageId);
     if (!targetPage) return;
@@ -222,7 +234,6 @@
     sections.forEach(section => {
       const bgUrl = section.getAttribute('data-bg');
       if (bgUrl) {
-        section.style.backgroundImage = `url(${bgUrl})`;
         const img = new Image();
         img.src = bgUrl;
         img.onload = function () {
@@ -267,22 +278,28 @@
       targetPage.style.display = 'block';
       loadSectionBg(targetId);
       lastPageId = targetId;
+      targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
+
   window.onload = function () {
     initPageDisplay();
   };
   anchorLinks.forEach(link => {
     link.addEventListener('click', function (e) {
+      e.stopPropagation();
       const targetId = this.getAttribute('href').slice(1);
-      switchPage(targetId);
+      if (targetId) {
+        switchPage(targetId);
+      }
     });
   });
-  const navTop = document.querySelector('header .top');
-  const TRIGGER_DISTANCE = 50;
-  let isNavShow = false;
-
   document.addEventListener('touchstart', function (e) {
+    const isAnchorLink = e.target.closest('header .top ul li a');
+    if (isAnchorLink) {
+      return;
+    }
+
     const touchY = e.touches[0].clientY;
     const navHeight = navTop.offsetHeight;
     if (touchY <= TRIGGER_DISTANCE) {
@@ -296,7 +313,6 @@
       }
     }
   }, { passive: false });
-
   document.addEventListener('mousemove', function (e) {
     const navHeight = navTop.offsetHeight;
     if (e.clientY <= TRIGGER_DISTANCE) {
