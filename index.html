@@ -214,12 +214,60 @@
 </body>
 <script>
   function isMobilePortrait() {
-    const isMobile = window.innerWidth <= 768;
+    const isRealMobile = /Mobile|Android|iOS|iPhone|iPad|iPod|Windows Phone|BlackBerry/i.test(navigator.userAgent);
     const isPortrait = window.innerHeight > window.innerWidth;
-    return isMobile && isPortrait;
+    const isMobileWidth = window.innerWidth <= 768;
+    return isRealMobile && isPortrait && isMobileWidth;
   }
   if (isMobilePortrait()) {
     alert('横屏以获得最佳体验');
+  }
+  const imgCache = new Map();
+  let lazyLoadObserver = null;
+  function lazyLoadSingleBg(section) {
+    const bgUrl = section.getAttribute('data-bg');
+    if (!bgUrl || section.hasAttribute('data-loaded') || imgCache.has(bgUrl)) {
+      if (bgUrl && imgCache.has(bgUrl)) {
+        section.style.backgroundImage = `url(${bgUrl})`;
+        section.setAttribute('data-loaded', 'true');
+      }
+      return;
+    }
+    const img = new Image();
+    img.src = bgUrl;
+    img.onload = function () {
+      imgCache.set(bgUrl, img);
+      section.style.backgroundImage = `url(${bgUrl})`;
+      section.setAttribute('data-loaded', 'true');
+    };
+  }
+  function initLazyLoad() {
+    const observerOptions = {
+      root: null,
+      rootMargin: '200px 0px',
+      threshold: 0.01
+    };
+    lazyLoadObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          lazyLoadSingleBg(entry.target);
+          lazyLoadObserver.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+    observeCurrentPageSections();
+  }
+  function observeCurrentPageSections() {
+    if (lazyLoadObserver) {
+      document.querySelectorAll('section[data-bg]').forEach(section => {
+        lazyLoadObserver.unobserve(section);
+      });
+    }
+    const currentPage = document.querySelector('.page[style="display: block;"]') || document.getElementById('first');
+    if (!currentPage) return;
+    currentPage.querySelectorAll('section[data-bg]').forEach(section => {
+      lazyLoadObserver.observe(section);
+    });
   }
   let lastPageId = 'first';
   const allPages = document.querySelectorAll('.page');
@@ -230,32 +278,17 @@
   function loadSectionBg(pageId) {
     const targetPage = document.getElementById(pageId);
     if (!targetPage) return;
-    const sections = targetPage.querySelectorAll('section[data-bg]');
-    sections.forEach(section => {
-      const bgUrl = section.getAttribute('data-bg');
-      if (bgUrl) {
-        const img = new Image();
-        img.src = bgUrl;
-        img.onload = function () {
-          section.style.backgroundImage = `url(${bgUrl})`;
-          img.src = '';
-        };
-      }
-    });
+    setTimeout(() => {
+      observeCurrentPageSections();
+    }, 100);
   }
   function releaseSectionBg(pageId) {
     const targetPage = document.getElementById(pageId);
     if (!targetPage) return;
-    const sections = targetPage.querySelectorAll('section[data-bg]');
-    sections.forEach(section => {
+    targetPage.querySelectorAll('section[data-bg]').forEach(section => {
       section.style.backgroundImage = 'none';
       section.removeAttribute('style');
-      const bgUrl = section.getAttribute('data-bg');
-      if (bgUrl) {
-        const img = new Image();
-        img.src = bgUrl;
-        img.src = '';
-      }
+      section.removeAttribute('data-loaded');
     });
   }
   function initPageDisplay() {
@@ -268,6 +301,7 @@
       loadSectionBg('first');
     }
   }
+
   function switchPage(targetId) {
     releaseSectionBg(lastPageId);
     allPages.forEach(page => {
@@ -281,9 +315,9 @@
       targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
-
   window.onload = function () {
     initPageDisplay();
+    initLazyLoad();
   };
   anchorLinks.forEach(link => {
     link.addEventListener('click', function (e) {
@@ -296,9 +330,7 @@
   });
   document.addEventListener('touchstart', function (e) {
     const isAnchorLink = e.target.closest('header .top ul li a');
-    if (isAnchorLink) {
-      return;
-    }
+    if (isAnchorLink) return;
 
     const touchY = e.touches[0].clientY;
     const navHeight = navTop.offsetHeight;
@@ -323,7 +355,6 @@
       isNavShow = false;
     }
   });
-
   const navUl = document.querySelector('header .top ul');
   navUl.addEventListener('wheel', function (e) {
     e.preventDefault();
