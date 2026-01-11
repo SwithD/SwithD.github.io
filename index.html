@@ -224,6 +224,7 @@
   }
   const imgCache = new Map();
   let lazyLoadObserver = null;
+
   function lazyLoadSingleBg(section) {
     const bgUrl = section.getAttribute('data-bg');
     if (!bgUrl || section.hasAttribute('data-loaded') || imgCache.has(bgUrl)) {
@@ -241,22 +242,33 @@
       section.setAttribute('data-loaded', 'true');
     };
   }
+  function unloadOffscreenSingleBg(section) {
+    const bgUrl = section.getAttribute('data-bg');
+    if (!bgUrl || !section.hasAttribute('data-loaded')) return;
+    section.style.backgroundImage = 'none';
+    section.removeAttribute('data-loaded');
+  }
+
   function initLazyLoad() {
     const observerOptions = {
       root: null,
-      rootMargin: '200px 0px',
+      rootMargin: '200px 0px 500px 0px',
       threshold: 0.01
     };
+
     lazyLoadObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           lazyLoadSingleBg(entry.target);
-          lazyLoadObserver.unobserve(entry.target);
+        } else {
+          unloadOffscreenSingleBg(entry.target);
         }
       });
     }, observerOptions);
+
     observeCurrentPageSections();
   }
+
   function observeCurrentPageSections() {
     if (lazyLoadObserver) {
       document.querySelectorAll('section[data-bg]').forEach(section => {
@@ -269,12 +281,14 @@
       lazyLoadObserver.observe(section);
     });
   }
+
   let lastPageId = 'first';
   const allPages = document.querySelectorAll('.page');
   const anchorLinks = document.querySelectorAll('header .top ul li a');
   const navTop = document.querySelector('header .top');
   const TRIGGER_DISTANCE = 50;
   let isNavShow = false;
+
   function loadSectionBg(pageId) {
     const targetPage = document.getElementById(pageId);
     if (!targetPage) return;
@@ -282,6 +296,7 @@
       observeCurrentPageSections();
     }, 100);
   }
+
   function releaseSectionBg(pageId) {
     const targetPage = document.getElementById(pageId);
     if (!targetPage) return;
@@ -291,6 +306,7 @@
       section.removeAttribute('data-loaded');
     });
   }
+
   function initPageDisplay() {
     allPages.forEach(page => {
       page.style.display = 'none';
@@ -315,10 +331,12 @@
       targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
+
   window.onload = function () {
     initPageDisplay();
     initLazyLoad();
   };
+
   anchorLinks.forEach(link => {
     link.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -328,6 +346,7 @@
       }
     });
   });
+
   document.addEventListener('touchstart', function (e) {
     const isAnchorLink = e.target.closest('header .top ul li a');
     if (isAnchorLink) return;
@@ -345,6 +364,7 @@
       }
     }
   }, { passive: false });
+
   document.addEventListener('mousemove', function (e) {
     const navHeight = navTop.offsetHeight;
     if (e.clientY <= TRIGGER_DISTANCE) {
@@ -355,6 +375,7 @@
       isNavShow = false;
     }
   });
+
   const navUl = document.querySelector('header .top ul');
   navUl.addEventListener('wheel', function (e) {
     e.preventDefault();
