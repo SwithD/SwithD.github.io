@@ -32,11 +32,13 @@
       <li class="place"><a href="">未去</a></li>
     </ul>
     <div class="text">
-
     </div>
 </header>
 
 <body>
+  <div id="noteContainer"></div>
+  <audio src="./music/music2.mp3" loop id="bgMusic"></audio>
+  <button id="musicBtn">🎵</button>
   <div id="first" class="page">
     <section data-bg="./img/first/first1.jpg">
       <div class="content">
@@ -57,7 +59,6 @@
         </p>
       </div>
     </section>
-
   </div>
 
   <div id="bj" class="page">
@@ -211,8 +212,115 @@
       </div>
     </section>
   </div>
+
+  <!-- ----------分割线---------- -->
+   <div id="lyx" class="page">
+     <section data-bg="./img/special/1.jpg">
+      <div class="content">
+        <h1>彩 蛋</h1>
+      </div>
+    </section>
+    <section data-bg="./img/special/2.jpg">
+      <div class="content">
+        <p>2026年1月22日 16：20</p>
+          <p>上午考完了一科，并不理想。</p>
+          <p>马上即将迎来大二的寒假......</p>
+          <p>以前各个方面都优异的人，现在也变成了差生。可以说目前有点迷茫吧，一方面不想花大量时间取刷题，看书，一方面别人的成绩与自己的形成巨大反差后又觉得有点手足无措。</p>
+          <p>我一直这么想着：我要走其他人不走的特殊路线，让其他在学术路线上死学的人看看，成绩好没什么大不了的。</p>
+          <p>但是，未真正在自己选择的路上取得一定成果之前又会因为自己在学习方面不如其他人而怀疑自己。</p>
+          <p>是不是我应该去认真学习课本知识？是不是真的应该参加一些竞赛去卷？自己是否真的能找到属于自己的路？</p> 
+          <p>冷静下来思考，又会觉得和别人去争实在没什么意义，却又放不下面子。</p>
+          <p>我毕生追求的理想只有三个。</p>
+      </div>
+    </section>
+    <section data-bg="./img/special/3.jpg">
+      <div class="content">
+          <p>一是尽快能找到真正懂得自己，真正能陪伴自己走完一生的人。</p>
+          <p>虽然几乎没有机会去认识新的朋友，但我每天这么期盼着期盼着，希望哪一天有个女生会突然闯进我的生活......让我离某些庸俗的人际关系远一点。</p>
+      </div>
+    </section>
+     <section data-bg="./img/special/4.webp">
+      <div class="content">
+         <p>二是找到自己的成功之路，无论是传统方式的学习-找工作-就业，还是我目前构思的创业.</p>
+         <p>我想要的并不是得到什么巨大的财富，只要能让我摆脱庸俗，烦躁的生活，去自由得追寻我想要的即可。</p>
+      </div>
+    </section>
+     <section data-bg="./img/special/5.jpg">
+      <div class="content">
+        <p>三是希望未来能够走遍世界各地，饱览世界各国的风光美景，体验不同地方的风土人情。</p>
+        <p>当然，第三点是建立在第二点之上的，只有实现财富自由，灵魂自由，才能实现身体的自由。</p>
+        <p>最后，希望在不远的未来能够通过自己的创新，努力实现自己的理想。</p>
+        <p>希望未来的你再次想起这段话的时候已经实现自己的抱负.........</p>
+      </div>
+    </section>
+   </div>
 </body>
 <script>
+const secretCode = ['l', 'y', 'x'];
+let codeIndex = 0;
+document.addEventListener('keydown', function(e) {
+  const key = e.key.toLowerCase();
+  if (key === secretCode[codeIndex]) {
+    codeIndex++;
+    if (codeIndex === secretCode.length) {
+      switchPage('lyx'); 
+      setTimeout(() => {
+        const pageElement = document.getElementById('lyx');
+        if (pageElement) {
+          pageElement.scrollIntoView({
+            behavior: 'auto',
+            block: 'start'
+          });
+        }
+      }, 150); 
+      codeIndex = 0;
+    }
+  } else {
+    codeIndex = 0;
+  }
+});
+  // 以上不告诉你
+   const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    const noteContainer = document.getElementById('noteContainer');
+    let isPlaying = false;
+    const noteIcons = ['🎶', '🎵', '♪', '♫'];
+    let noteTimer = null;
+    function createNote() {
+      const note = document.createElement('div');
+      note.className = 'music-note';
+      note.textContent = noteIcons[Math.floor(Math.random() * noteIcons.length)];
+      note.style.setProperty('--random-x', `${Math.random() * 30 - 15}px`);
+      note.style.animationDuration = `${2 + Math.random() * 1}s`;
+      noteContainer.appendChild(note);
+      setTimeout(() => {
+        note.remove();
+      }, 3000);
+    }
+    musicBtn.addEventListener('click', async () => {
+      try {
+        if (!isPlaying) {
+          await bgMusic.play();
+          isPlaying = true;
+          musicBtn.classList.add('playing');
+          noteTimer = setInterval(() => {
+            createNote();
+          }, 300);
+        } else {
+          bgMusic.pause();
+          isPlaying = false;
+          musicBtn.classList.remove('playing');
+          clearInterval(noteTimer);
+          noteTimer = null;
+        }
+      } catch (err) {
+        alert('操作失败：' + err.message);
+      }
+    });
+    window.addEventListener('beforeunload', () => {
+      clearInterval(noteTimer);
+    });
+  // ----------上面是背景音乐----------
   function isMobilePortrait() {
     const isRealMobile = /Mobile|Android|iOS|iPhone|iPad|iPod|Windows Phone|BlackBerry/i.test(navigator.userAgent);
     const isPortrait = window.innerHeight > window.innerWidth;
